@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #eab308;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1e293b;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .upload-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+        
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .upload-text {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .selected-file {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .selected-file.show {
+            display: flex;
+        }
+        
+        .file-name {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .remove-file {
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-btn:disabled {
+            background-color: var(--secondary);
+            cursor: not-allowed;
+        }
+        
+        .submit-btn:not(:disabled):hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .result-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            display: none;
+        }
+        
+        .result-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .result-item {
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: var(--primary);
+        }
+        
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+        
+        <div class="header animate__animated animate__fadeIn">
+            <h1>Breast Cancer Detection</h1>
+            <p>Upload a medical image for AI-powered analysis</p>
+        </div>
+        
+        <div class="upload-container animate__animated animate__fadeInUp">
+            <form id="breast-cancer-form">
+                <div class="upload-area" id="upload-area">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="upload-text">Click or drag and drop to upload medical image</p>
+                    <p style="color: #94a3b8; font-size: 0.875rem;">Supported formats: JPEG, PNG, DICOM</p>
+                </div>
+                
+                <input type="file" id="file-input" class="file-input" name="file" accept="image/*" required>
+                
+                <div class="selected-file" id="selected-file">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="file-name" id="file-name"></span>
+                    <span class="remove-file" id="remove-file">×</span>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>
+                    Analyze Image
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Analyzing image...</span>
+            </div>
+            
+            <div class="result-container" id="result-container">
+                <h3>Analysis Results</h3>
+                <div class="result-item" id="result"></div>
+                <div class="result-item" id="result1"></div>
+                <div class="result-item" id="result2"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const form = document.getElementById('breast-cancer-form');
+    const fileInput = document.getElementById('file-input');
+    const uploadArea = document.getElementById('upload-area');
+    const selectedFile = document.getElementById('selected-file');
+    const fileName = document.getElementById('file-name');
+    const removeFile = document.getElementById('remove-file');
+    const submitBtn = document.getElementById('submit-btn');
+    const loading = document.getElementById('loading');
+    const resultContainer = document.getElementById('result-container');
+
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary').trim();
+        uploadArea.style.backgroundColor = '#f8fafc';
+    });
+
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#e2e8f0';
+        uploadArea.style.backgroundColor = 'white';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#e2e8f0';
+        uploadArea.style.backgroundColor = 'white';
+        
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            updateFileDisplay();
+        }
+    });
+
+    // Handle click upload
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', updateFileDisplay);
+
+    // Handle file removal
+    removeFile.addEventListener('click', () => {
+        fileInput.value = '';
+        updateFileDisplay();
+    });
+
+    function updateFileDisplay() {
+        if (fileInput.files.length) {
+            fileName.textContent = "File  Uploaded";
+            selectedFile.classList.add('show');
+            submitBtn.disabled = false;
+        } else {
+            selectedFile.classList.remove('show');
+            submitBtn.disabled = true;
+        }
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        try {
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+            resultContainer.classList.remove('show');
+            
+            const response = await fetch('/predict_breast', {
+                method: 'POST',
+                body: formData,
+            });
+            
+            const data = await response.json();
+            
+            document.getElementById('result').innerText = `Prediction: ${data.prediction}`;
+            document.getElementById('result1').innerText = `Confidence: ${data.confidence}`;
+            // document.getElementById('result2').innerText = `status: ${data.status}`;
+            // document.getElementById('result2').innerText = `Probability: ${data.probabilities}`;
+            
+            resultContainer.classList.add('show');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request. Please try again.');
+        } finally {
+            loading.classList.remove('show');
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>
