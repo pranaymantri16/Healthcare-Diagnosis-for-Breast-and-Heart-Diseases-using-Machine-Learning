@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 # HF_API_URL = "https://api-inference.huggingface.co/models/MUmairAB/Breast_Cancer_Detector"
-# HF_API_TOKEN = "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"
+# HF_API_TOKEN = "333333333333333333333333333333"
 
 # headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 
