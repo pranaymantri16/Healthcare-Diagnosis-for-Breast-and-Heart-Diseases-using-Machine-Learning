@@ -10,7 +10,7 @@ from tensorflow.keras.preprocessing import image
 app = Flask(__name__)
 CORS(app)
 
-# HF_API_URL = "https://api-inference.huggingface.co/models/MUmairAB/Breast_Cancer_Detector"
+# HF_API_URL = "33333333333333333333333333333333333333333333333333333333r"
 # HF_API_TOKEN = "333333333333333333333333333333"
 
 # headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
