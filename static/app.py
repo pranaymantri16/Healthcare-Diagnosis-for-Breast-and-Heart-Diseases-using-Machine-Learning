@@ -72,7 +72,25 @@ def predict_breast():
 def predict_heart():
 # Assuming the user sends data in JSON format
     data = request.json
-    
+    # Combine hardcoded and user-provided features
+    features = np.array([[age, gender, height, float(data['weight']),
+                          float(data['ap_hi']), float(data['ap_lo']), 
+                          int(data['cholesterol']), int(data['gluc']), 
+                          smoke, int(data['alco']), int(data['active'])]],
+                        dtype=float)
+
+    # Scale the input data
+    scaled_features = (features - scaler_mean.astype(float)) / scaler_scale.astype(float)
+            
+    # Reshape input for the LSTM model
+    scaled_features = scaled_features.reshape(1, 1, 11) 
+            
+    # Make prediction
+    predictions = heart_model.predict(scaled_features)
+    predicted_class = (predictions > 0.5).astype(int)
+            
+    # Determine result
+    result = 'Heart Disease' if predicted_class[0][0] == 1 else 'No Heart Disease'
             
     # Calculate confidence
     confidence = float(predictions[0][0]) if predicted_class[0][0] == 1 else float(1 - predictions[0][0])
